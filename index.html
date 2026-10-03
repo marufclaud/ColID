@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ColGen">
+<meta name="theme-color" content="#000000">
+<title>ColGen — Colombian Identity Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :root {
+    --bg: #08080a;
+    --surface: #0f0f12;
+    --surface-2: #16161a;
+    --border: #1f1f24;
+    --border-hover: #2a2a30;
+    --text: #ffffff;
+    --text-2: #a1a1aa;
+    --text-3: #52525b;
+    --gold: #fcd116;
+    --green: #10b981;
+    --male: #4a9eff;
+    --female: #ff6fb5;
+  }
+
+  html, body {
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--text);
+    padding: calc(20px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-x: hidden;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .ambient::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 900px;
+    background: radial-gradient(circle, rgba(252, 209, 22, 0.07) 0%, rgba(0, 56, 147, 0.05) 30%, transparent 65%);
+    filter: blur(40px);
+  }
+
+  .ambient::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 75%);
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 680px;
+  }
+
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    padding: 0 4px;
+  }
+
+  .brand { display: flex; align-items: center; gap: 10px; }
+
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #fcd116 0%, #fcd116 45%, #003893 45%, #003893 72%, #ce1126 72%, #ce1126 100%);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 6px 20px rgba(252, 209, 22, 0.15);
+    flex-shrink: 0;
+  }
+
+  .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+  .brand-name { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; color: #fff; }
+  .brand-tag { font-size: 10.5px; color: var(--text-3); font-weight: 500; letter-spacing: 0.02em; margin-top: 2px; }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px 5px 8px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 20px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #34d399;
+    letter-spacing: 0.01em;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .hero { text-align: center; margin-bottom: 32px; padding: 0 8px; }
+
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+    margin-bottom: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 13.5px;
+    color: var(--text-2);
+    line-height: 1.5;
+    font-weight: 400;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 20px 60px -20px rgba(0, 0, 0, 0.8);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  }
+
+  .card-body {
+    padding: 20px;
+    background: var(--surface-2);
+    border-radius: 15px;
+    border: 1px solid var(--border);
+  }
+
+  .field { margin-bottom: 16px; }
+  .field:last-of-type { margin-bottom: 20px; }
+
+  .field-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 0 2px;
+  }
+
+  .field-title {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-2);
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .field-title svg { color: var(--text-3); }
+
+  .gender-tag {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .gender-tag.show { display: inline-flex; }
+
+  .gender-tag.male {
+    background: rgba(74, 158, 255, 0.1);
+    color: var(--male);
+    border: 1px solid rgba(74, 158, 255, 0.25);
+  }
+
+  .gender-tag.female {
+    background: rgba(255, 111, 181, 0.1);
+    color: var(--female);
+    border: 1px solid rgba(255, 111, 181, 0.25);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(3px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .output {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #0a0a0c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 14px 14px 16px;
+    min-height: 56px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .output.active {
+    border-color: rgba(252, 209, 22, 0.25);
+    background: #0c0c0f;
+  }
+
+  .output-text {
+    flex: 1;
+    font-size: 15.5px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    word-break: break-word;
+    min-width: 0;
+  }
+
+  .output-text.placeholder {
+    color: var(--text-3);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  #passOutput.output-text,
+  .output-text.mono {
+    font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--gold);
+  }
+
+  .copy-btn {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover {
+    background: var(--surface-2);
+    border-color: var(--border-hover);
+    color: var(--text);
+  }
+
+  .copy-btn:active { transform: scale(0.94); }
+
+  .copy-btn.copied {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: var(--green);
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 14px;
+    background: #0a0a0c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+
+  .slider-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+
+  .slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .slider-wrap input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    max-width: 140px;
+    height: 3px;
+    background: var(--border-hover);
+    border-radius: 2px;
+    outline: none;
+    touch-action: manipulation;
+  }
+
+  .slider-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08), 0 2px 6px rgba(0, 0, 0, 0.6);
+    transition: transform 0.15s;
+  }
+
+  .slider-wrap input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.1); }
+
+  .slider-wrap input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+  }
+
+  .slider-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    min-width: 26px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 8px;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 48px;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn:active { transform: scale(0.98); }
+
+  .btn-primary {
+    background: #ffffff;
+    color: #08080a;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 4px 16px rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-primary:hover { background: #f4f4f5; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-hover);
+  }
+
+  .btn-secondary:hover {
+    background: var(--surface-2);
+    border-color: #3a3a42;
+  }
+
+  /* ============ Referral Link Card ============ */
+  .link-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 10px 30px -15px rgba(0, 0, 0, 0.7);
+  }
+
+  .link-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, #fcd116, #003893 50%, #ce1126);
+    opacity: 0.9;
+  }
+
+  .link-card:hover {
+    background: var(--surface-2);
+    border-color: var(--border-hover);
+  }
+
+  .link-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .link-icon {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(252, 209, 22, 0.15), rgba(0, 56, 147, 0.15));
+    border: 1px solid rgba(252, 209, 22, 0.2);
+    color: var(--gold);
+  }
+
+  .link-meta {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .link-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 3px;
+  }
+
+  .link-url {
+    font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .link-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .link-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 36px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+
+  .link-btn:hover {
+    background: var(--surface-2);
+    border-color: var(--border-hover);
+    color: var(--text);
+  }
+
+  .link-btn:active {
+    transform: scale(0.96);
+  }
+
+  .link-btn.copy.copied {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: var(--green);
+  }
+
+  .link-btn.open {
+    background: rgba(252, 209, 22, 0.08);
+    border-color: rgba(252, 209, 22, 0.25);
+    color: var(--gold);
+  }
+
+  .link-btn.open:hover {
+    background: rgba(252, 209, 22, 0.15);
+    border-color: rgba(252, 209, 22, 0.4);
+    color: #ffdd44;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 32px 0 14px;
+    padding: 0 4px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .counter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 20px;
+    padding: 0 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tools { display: flex; gap: 6px; }
+
+  .tool {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 36px;
+    letter-spacing: -0.005em;
+  }
+
+  .tool:hover {
+    background: var(--surface-2);
+    border-color: var(--border-hover);
+    color: var(--text);
+  }
+
+  .tool:active { transform: scale(0.96); }
+
+  .tool.download:hover {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: var(--green);
+  }
+
+  .tool.danger:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+
+  .search-wrap { position: relative; margin-bottom: 14px; }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-3);
+    pointer-events: none;
+  }
+
+  .search {
+    width: 100%;
+    padding: 12px 14px 12px 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--text);
+    outline: none;
+    transition: all 0.2s;
+    -webkit-appearance: none;
+    letter-spacing: -0.005em;
+  }
+
+  .search::placeholder { color: var(--text-3); }
+
+  .search:focus {
+    border-color: var(--border-hover);
+    background: var(--surface-2);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.03);
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .list::-webkit-scrollbar { width: 4px; }
+  .list::-webkit-scrollbar-track { background: transparent; }
+  .list::-webkit-scrollbar-thumb {
+    background: var(--border-hover);
+    border-radius: 2px;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: all 0.15s;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .row:hover {
+    background: var(--surface-2);
+    border-color: var(--border-hover);
+  }
+
+  .avatar {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    letter-spacing: -0.02em;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .avatar.male { background: linear-gradient(135deg, #2b5796, #1e3a6e); }
+  .avatar.female { background: linear-gradient(135deg, #a8427a, #7a2e56); }
+
+  .row-info { flex: 1; min-width: 0; }
+
+  .row-name {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .gd { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .gd.male { background: var(--male); box-shadow: 0 0 6px rgba(74, 158, 255, 0.6); }
+  .gd.female { background: var(--female); box-shadow: 0 0 6px rgba(255, 111, 181, 0.6); }
+
+  .row-pass {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: 0.02em;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .row-time {
+    font-size: 10.5px;
+    color: var(--text-3);
+    font-weight: 500;
+    letter-spacing: 0.005em;
+  }
+
+  .row-actions { display: flex; gap: 2px; flex-shrink: 0; }
+
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--text-3);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .icon-btn:hover {
+    background: var(--surface-2);
+    border-color: var(--border);
+    color: var(--text-2);
+  }
+
+  .icon-btn:active { transform: scale(0.9); }
+
+  .icon-btn.del:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 56px 20px;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 14px;
+  }
+
+  .empty-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-3);
+  }
+
+  .empty h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .empty p { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
+  .toast {
+    position: fixed;
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: rgba(15, 15, 18, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--border-hover);
+    color: var(--text);
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 999;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: none;
+    max-width: calc(100vw - 40px);
+    letter-spacing: -0.005em;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .toast-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-2);
+    flex-shrink: 0;
+  }
+
+  .toast.success .toast-dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .toast.warn .toast-dot { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .overlay.show { display: flex; opacity: 1; }
+
+  .sheet {
+    background: var(--surface);
+    border-top: 1px solid var(--border-hover);
+    border-radius: 24px 24px 0 0;
+    padding: 8px 20px calc(24px + env(safe-area-inset-bottom));
+    width: 100%;
+    max-width: 500px;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .overlay.show .sheet { transform: translateY(0); }
+
+  .handle {
+    width: 36px;
+    height: 4px;
+    background: var(--border-hover);
+    border-radius: 2px;
+    margin: 8px auto 20px;
+  }
+
+  .sheet-head { margin-bottom: 20px; text-align: center; }
+
+  .sheet-head h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+
+  .sheet-head p { font-size: 12.5px; color: var(--text-2); line-height: 1.5; }
+
+  .formats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .fmt {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .fmt:hover {
+    background: #1a1a1f;
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+  }
+
+  .fmt:active { transform: scale(0.97); }
+
+  .fmt-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+
+  .fmt-icon.csv { background: rgba(16, 185, 129, 0.1); color: var(--green); }
+  .fmt-icon.json { background: rgba(252, 209, 22, 0.1); color: var(--gold); }
+  .fmt-icon.txt { background: rgba(161, 161, 170, 0.1); color: var(--text-2); }
+  .fmt-icon.html { background: rgba(255, 111, 181, 0.1); color: var(--female); }
+
+  .fmt-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+    letter-spacing: -0.01em;
+  }
+
+  .fmt-desc { font-size: 10.5px; color: var(--text-3); font-weight: 500; line-height: 1.4; }
+
+  .sheet-cancel {
+    width: 100%;
+    padding: 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 48px;
+    letter-spacing: -0.005em;
+  }
+
+  .sheet-cancel:hover { background: #1a1a1f; border-color: var(--border-hover); }
+  .sheet-cancel:active { transform: scale(0.98); }
+
+  .confirm-sheet {
+    background: var(--surface);
+    border: 1px solid var(--border-hover);
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 380px;
+    transform: scale(0.95);
+    transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+  }
+
+  .confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity 0.25s;
+    padding: 20px;
+  }
+
+  .confirm-overlay.show { display: flex; opacity: 1; }
+  .confirm-overlay.show .confirm-sheet { transform: scale(1); }
+
+  .confirm-icon {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 12px;
+    color: #f87171;
+  }
+
+  .confirm-sheet h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+  }
+
+  .confirm-sheet p {
+    font-size: 13px;
+    color: var(--text-2);
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .confirm-btn {
+    padding: 12px;
+    border: none;
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 44px;
+    letter-spacing: -0.005em;
+  }
+
+  .confirm-btn.cancel {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .confirm-btn.cancel:hover { background: #1a1a1f; border-color: var(--border-hover); }
+
+  .confirm-btn.danger {
+    background: #dc2626;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+  }
+
+  .confirm-btn.danger:hover { background: #b91c1c; }
+
+  .confirm-btn:active { transform: scale(0.97); }
+
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.01em;
+    font-weight: 500;
+  }
+
+  .footer span { color: var(--text-2); font-weight: 600; }
+
+  @media (max-width: 420px) {
+    .hero h1 { font-size: 26px; }
+    .hero p { font-size: 12.5px; }
+    .card-body { padding: 16px; }
+    .actions { grid-template-columns: 1fr; }
+    .btn { min-height: 50px; }
+    .section-head { flex-direction: column; align-items: stretch; }
+    .tools { width: 100%; }
+    .tool { flex: 1; justify-content: center; }
+    .output-text { font-size: 14.5px; }
+    #passOutput.output-text { font-size: 13px; }
+    .formats { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    .link-card {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+    .link-actions {
+      justify-content: stretch;
+    }
+    .link-btn {
+      flex: 1;
+    }
+    .link-url {
+      font-size: 11px;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .overlay { align-items: center; padding: 20px; }
+    .sheet {
+      border-radius: 20px;
+      border: 1px solid var(--border-hover);
+      padding: 20px;
+      transform: scale(0.95);
+      max-height: 85vh;
+    }
+    .overlay.show .sheet { transform: scale(1); }
+    .handle { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+
+<div class="container">
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <div class="brand-name">ColGen</div>
+        <div class="brand-tag">Colombian Identity</div>
+      </div>
+    </div>
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      Online
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Generate identities<br>in seconds.</h1>
+    <p>Realistic Colombian names with strong passwords. Save, search, and export anytime.</p>
+  </section>
+
+  <!-- Referral Link Card -->
+  <div class="link-card">
+    <div class="link-info">
+      <div class="link-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      </div>
+      <div class="link-meta">
+        <div class="link-label">Partner Link</div>
+        <div class="link-url" id="refLinkText">https://zulti.com/?r=UEQFEDAPKJ</div>
+      </div>
+    </div>
+    <div class="link-actions">
+      <button class="link-btn copy" id="copyLinkBtn" aria-label="Copy link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <rect x="9" y="9" width="13" height="13" rx="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        Copy
+      </button>
+      <button class="link-btn open" id="openLinkBtn" aria-label="Open link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        Open
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="field">
+        <div class="field-head">
+          <div class="field-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Full Name
+          </div>
+          <span class="gender-tag" id="genderTag"></span>
+        </div>
+        <div class="output" id="nameBox">
+          <span class="output-text placeholder" id="nameOutput">Tap Generate to begin</span>
+          <button class="copy-btn" id="copyNameBtn" aria-label="Copy">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-head">
+          <div class="field-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Password
+          </div>
+        </div>
+        <div class="output" id="passBox">
+          <span class="output-text mono placeholder" id="passOutput">Tap Generate to begin</span>
+          <button class="copy-btn" id="copyPassBtn" aria-label="Copy">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="slider-row">
+        <span class="slider-label">Password Length</span>
+        <div class="slider-wrap">
+          <input type="range" id="passLength" min="6" max="32" value="12">
+          <span class="slider-value" id="lenVal">12</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="generateBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-9-9c2.5 0 4.8 1 6.4 2.6L21 8"/><path d="M21 3v5h-5"/></svg>
+          Generate
+        </button>
+        <button class="btn btn-secondary" id="saveBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <div class="section-title">
+      Saved Identities
+      <span class="counter" id="countBadge">0</span>
+    </div>
+    <div class="tools">
+      <button class="tool download" id="exportBtn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+      <button class="tool danger" id="clearBtn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" class="search" id="searchBox" placeholder="Search identities..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  </div>
+
+  <div class="list" id="historyList"></div>
+
+  <div class="footer">
+    Built with <span>care</span> · All data stored locally
+  </div>
+</div>
+
+<div class="overlay" id="downloadModal">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-head">
+      <h3>Export Identities</h3>
+      <p id="downloadInfo">Choose a format</p>
+    </div>
+
+    <div class="formats">
+      <div class="fmt" data-format="csv">
+        <div>
+          <div class="fmt-icon csv">📊</div>
+          <div class="fmt-name">CSV</div>
+        </div>
+        <div class="fmt-desc">Excel & Sheets</div>
+      </div>
+      <div class="fmt" data-format="json">
+        <div>
+          <div class="fmt-icon json">🗂</div>
+          <div class="fmt-name">JSON</div>
+        </div>
+        <div class="fmt-desc">Structured data</div>
+      </div>
+      <div class="fmt" data-format="txt">
+        <div>
+          <div class="fmt-icon txt">📄</div>
+          <div class="fmt-name">TXT</div>
+        </div>
+        <div class="fmt-desc">Plain text</div>
+      </div>
+      <div class="fmt" data-format="html">
+        <div>
+          <div class="fmt-icon html">🌐</div>
+          <div class="fmt-name">HTML</div>
+        </div>
+        <div class="fmt-desc">Styled report</div>
+      </div>
+    </div>
+
+    <button class="sheet-cancel" id="closeDownloadBtn">Cancel</button>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirmModal">
+  <div class="confirm-sheet">
+    <div class="confirm-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <h3 id="confirmTitle">Delete identity?</h3>
+    <p id="confirmMsg">This action cannot be undone.</p>
+    <div class="confirm-actions">
+      <button class="confirm-btn cancel" id="confirmCancelBtn">Cancel</button>
+      <button class="confirm-btn danger" id="confirmOkBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span class="toast-dot"></span>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+// ==================== Names Data ====================
+var maleNames = [
+  "Juan", "Carlos", "Andrés", "Santiago", "Felipe", "Diego", "Sebastián",
+  "Alejandro", "Camilo", "Daniel", "David", "Nicolás", "Mateo", "Samuel",
+  "Miguel", "José", "Luis", "Jorge", "Ricardo", "Fernando", "Alberto",
+  "Gabriel", "Emilio", "Tomás", "Joaquín", "Martín", "Simón", "Lucas",
+  "Manuel", "Pedro", "Antonio", "Francisco", "Javier", "Óscar", "Iván"
+];
+
+var femaleNames = [
+  "María", "Camila", "Valentina", "Isabella", "Sofía", "Daniela", "Gabriela",
+  "Laura", "Andrea", "Carolina", "Paula", "Juliana", "Manuela", "Sara",
+  "Catalina", "Mariana", "Alejandra", "Natalia", "Verónica", "Lucía",
+  "Elena", "Carmen", "Rosa", "Ana", "Patricia", "Claudia", "Diana",
+  "Mónica", "Adriana", "Beatriz", "Silvia", "Gloria", "Liliana", "Rocío"
+];
+
+var lastNames = [
+  "García", "Rodríguez", "Martínez", "Hernández", "López", "González",
+  "Pérez", "Sánchez", "Ramírez", "Torres", "Flores", "Rivera", "Gómez",
+  "Díaz", "Cruz", "Morales", "Ortiz", "Gutiérrez", "Chávez", "Ramos",
+  "Vargas", "Castillo", "Jiménez", "Mendoza", "Romero", "Herrera",
+  "Medina", "Aguilar", "Vega", "Rojas", "Silva", "Ríos", "Peña",
+  "Castro", "Suárez", "Navarro", "Campos", "Salazar", "Fuentes", "Cortés"
+];
+
+// ==================== Config ====================
+var REF_LINK = 'https://zulti.com/?r=UEQFEDAPKJ';
+var STORAGE_KEY = 'colgen_v1';
+
+// ==================== State ====================
+var current = { name: "", pass: "", gender: "" };
+var pendingDeleteId = null;
+
+// ==================== Storage ====================
+function readStore() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    var parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function writeStore(arr) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+  } catch (e) {
+    toast("Storage full", "warn");
+  }
+}
+
+// ==================== Generate ====================
+function makeName() {
+  var isMale = Math.random() < 0.5;
+  var pool = isMale ? maleNames : femaleNames;
+  var first = pool[Math.floor(Math.random() * pool.length)];
+  var l1 = lastNames[Math.floor(Math.random() * lastNames.length)];
+  var l2 = lastNames[Math.floor(Math.random() * lastNames.length)];
+  return {
+    name: first + ' ' + l1 + ' ' + l2,
+    gender: isMale ? 'male' : 'female'
+  };
+}
+
+function makePassword(len) {
+  var U = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  var L = "abcdefghijklmnopqrstuvwxyz";
+  var N = "0123456789";
+  var S = "!@#$%&*?";
+  var all = U + L + N + S;
+
+  var p = U[Math.floor(Math.random() * U.length)] +
+          L[Math.floor(Math.random() * L.length)] +
+          N[Math.floor(Math.random() * N.length)] +
+          S[Math.floor(Math.random() * S.length)];
+
+  for (var i = p.length; i < len; i++) {
+    p += all[Math.floor(Math.random() * all.length)];
+  }
+  return p.split('').sort(function() { return Math.random() - 0.5; }).join('');
+}
+
+function generate() {
+  var len = parseInt(document.getElementById('passLength').value, 10) || 12;
+  var result = makeName();
+  var pass = makePassword(len);
+
+  var nameEl = document.getElementById('nameOutput');
+  var passEl = document.getElementById('passOutput');
+  var tag = document.getElementById('genderTag');
+
+  nameEl.textContent = result.name;
+  nameEl.classList.remove('placeholder');
+  passEl.textContent = pass;
+  passEl.classList.remove('placeholder');
+  document.getElementById('nameBox').classList.add('active');
+  document.getElementById('passBox').classList.add('active');
+
+  tag.classList.remove('male', 'female', 'show');
+  void tag.offsetWidth;
+  tag.classList.add(result.gender, 'show');
+  tag.textContent = result.gender === 'male' ? 'Male' : 'Female';
+
+  current = { name: result.name, pass: pass, gender: result.gender };
+}
+
+// ==================== Save ====================
+function saveData() {
+  if (!current.name) {
+    toast("Generate first", "warn");
+    return;
+  }
+
+  var saved = readStore();
+  saved.unshift({
+    name: current.name,
+    pass: current.pass,
+    gender: current.gender,
+    time: new Date().toLocaleString('en-GB', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    }),
+    rawTime: Date.now()
+  });
+
+  writeStore(saved);
+  renderHistory();
+  toast("Saved successfully", "success");
+}
+
+// ==================== Escape HTML ====================
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ==================== Render ====================
+function renderHistory() {
+  var list = document.getElementById('historyList');
+  var q = document.getElementById('searchBox').value.toLowerCase();
+  var all = readStore();
+  var data = q ? all.filter(function(d) { return (d.name || '').toLowerCase().indexOf(q) !== -1; }) : all;
+
+  document.getElementById('countBadge').textContent = all.length;
+
+  if (data.length === 0) {
+    list.innerHTML = '<div class="empty">' +
+      '<div class="empty-icon">' +
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' +
+      '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>' +
+      '<polyline points="14 2 14 8 20 8"/></svg></div>' +
+      '<h3>' + (q ? 'No results' : 'Nothing saved yet') + '</h3>' +
+      '<p>' + (q ? 'Try a different search term' : 'Generate an identity and tap Save to store it here') + '</p>' +
+      '</div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < data.length; i++) {
+    var d = data[i];
+    var init = (d.name || '?').charAt(0).toUpperCase();
+    var g = d.gender || 'male';
+    var id = d.rawTime || 0;
+    html += '<div class="row">' +
+      '<div class="avatar ' + g + '">' + init + '</div>' +
+      '<div class="row-info">' +
+        '<div class="row-name"><span class="gd ' + g + '"></span>' + escapeHtml(d.name) + '</div>' +
+        '<div class="row-pass">' + escapeHtml(d.pass) + '</div>' +
+        '<div class="row-time">' + escapeHtml(d.time || '') + '</div>' +
+      '</div>' +
+      '<div class="row-actions">' +
+        '<button class="icon-btn" data-copy-id="' + id + '" aria-label="Copy">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+          '<rect x="9" y="9" width="13" height="13" rx="2"/>' +
+          '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+        '</button>' +
+        '<button class="icon-btn del" data-del-id="' + id + '" aria-label="Delete">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+          '<polyline points="3 6 5 6 21 6"/>' +
+          '<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>' +
+          '<path d="M10 11v6M14 11v6"/></svg>' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+  }
+  list.innerHTML = html;
+
+  var copyBtns = list.querySelectorAll('[data-copy-id]');
+  for (var j = 0; j < copyBtns.length; j++) {
+    copyBtns[j].addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var id = parseInt(this.getAttribute('data-copy-id'), 10);
+      copyItem(id, this);
+    });
+  }
+
+  var delBtns = list.querySelectorAll('[data-del-id]');
+  for (var k = 0; k < delBtns.length; k++) {
+    delBtns[k].addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var id = parseInt(this.getAttribute('data-del-id'), 10);
+      askDelete(id);
+    });
+  }
+}
+
+// ==================== Copy System ====================
+function legacyCopy(text) {
+  var textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.top = '0';
+  textarea.style.left = '0';
+  textarea.style.width = '2em';
+  textarea.style.height = '2em';
+  textarea.style.padding = '0';
+  textarea.style.border = 'none';
+  textarea.style.outline = 'none';
+  textarea.style.boxShadow = 'none';
+  textarea.style.background = 'transparent';
+  textarea.style.fontSize = '16px';
+  textarea.style.opacity = '0';
+  textarea.setAttribute('readonly', '');
+
+  document.body.appendChild(textarea);
+
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  var successful = false;
+
+  try {
+    if (isIOS) {
+      var range = document.createRange();
+      range.selectNodeContents(textarea);
+      var selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      textarea.setSelectionRange(0, 999999);
+    } else {
+      textarea.select();
+      textarea.setSelectionRange(0, 999999);
+    }
+    successful = document.execCommand('copy');
+  } catch (err) {
+    successful = false;
+  }
+
+  document.body.removeChild(textarea);
+  return successful;
+}
+
+function copyToClipboard(text, callback) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      callback(true);
+    }).catch(function() {
+      callback(legacyCopy(text));
+    });
+  } else {
+    callback(legacyCopy(text));
+  }
+}
+
+function performCopy(text, btn) {
+  copyToClipboard(text, function(ok) {
+    if (ok) {
+      if (btn) {
+        btn.classList.add('copied');
+        setTimeout(function() { btn.classList.remove('copied'); }, 900);
+      }
+      toast("Copied to clipboard", "success");
+    } else {
+      window.prompt('Copy manually:', text);
+      toast("Long-press to copy", "warn");
+    }
+  });
+}
+
+function copyItem(id, btn) {
+  var list = readStore();
+  var item = null;
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].rawTime === id) { item = list[i]; break; }
+  }
+  if (!item) return;
+  performCopy(item.name + ' | ' + item.pass, btn);
+}
+
+function copyLiveText(id, btnId) {
+  var el = document.getElementById(id);
+  if (el.classList.contains('placeholder')) {
+    toast("Nothing to copy", "warn");
+    return;
+  }
+  var btn = document.getElementById(btnId);
+  performCopy(el.textContent, btn);
+}
+
+// ==================== Delete ====================
+function askDelete(id) {
+  var list = readStore();
+  var item = null;
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].rawTime === id) { item = list[i]; break; }
+  }
+  if (!item) return;
+
+  pendingDeleteId = id;
+  document.getElementById('confirmTitle').textContent = 'Delete this identity?';
+  document.getElementById('confirmMsg').textContent = item.name + ' — this cannot be undone.';
+  document.getElementById('confirmOkBtn').textContent = 'Delete';
+  document.getElementById('confirmModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function doDeleteOne() {
+  if (!pendingDeleteId) return;
+  var next = readStore().filter(function(d) { return d.rawTime !== pendingDeleteId; });
+  writeStore(next);
+  pendingDeleteId = null;
+  closeConfirm();
+  renderHistory();
+  toast("Deleted", "success");
+}
+
+function askClearAll() {
+  var all = readStore();
+  if (all.length === 0) {
+    toast("Nothing to clear", "warn");
+    return;
+  }
+  pendingDeleteId = null;
+  document.getElementById('confirmTitle').textContent = 'Clear all identities?';
+  document.getElementById('confirmMsg').textContent = 'All ' + all.length + ' saved identities will be permanently removed.';
+  document.getElementById('confirmOkBtn').textContent = 'Clear all';
+  document.getElementById('confirmModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function doClearAll() {
+  writeStore([]);
+  closeConfirm();
+  renderHistory();
+  toast("All cleared", "success");
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// ==================== Download Modal ====================
+function openDownloadModal() {
+  var data = readStore();
+  if (data.length === 0) {
+    toast("Nothing to export", "warn");
+    return;
+  }
+  document.getElementById('downloadInfo').textContent =
+    data.length + ' ' + (data.length === 1 ? 'identity' : 'identities') + ' ready to export';
+  document.getElementById('downloadModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDownloadModal() {
+  document.getElementById('downloadModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// ==================== Download ====================
+function downloadFile(fmt) {
+  var data = readStore();
+  if (!data.length) return;
+
+  var ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  var content = "", mime = "";
+
+  if (fmt === 'csv') {
+    mime = 'text/csv;charset=utf-8;';
+    content = '\uFEFF' + 'Name,Gender,Password,Saved At\n';
+    for (var i = 0; i < data.length; i++) {
+      var d = data[i];
+      content += '"' + d.name + '","' + (d.gender || '') + '","' + d.pass + '","' + (d.time || '') + '"\n';
+    }
+  } else if (fmt === 'json') {
+    mime = 'application/json';
+    content = JSON.stringify(data, null, 2);
+  } else if (fmt === 'txt') {
+    mime = 'text/plain;charset=utf-8;';
+    content = 'ColGen — Saved Identities\nExported: ' + new Date().toLocaleString() + '\nTotal: ' + data.length + '\n' + new Array(51).join('=') + '\n\n';
+    for (var j = 0; j < data.length; j++) {
+      var dd = data[j];
+      content += (j + 1) + '. ' + dd.name + '  [' + (dd.gender || '').toUpperCase() + ']\n';
+      content += '   Password: ' + dd.pass + '\n';
+      content += '   Saved: ' + (dd.time || '') + '\n\n';
+    }
+  } else if (fmt === 'html') {
+    mime = 'text/html;charset=utf-8;';
+    content = '<!DOCTYPE html>\n<html><head><meta charset="utf-8"><title>ColGen Export</title>\n' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+      '<style>\n' +
+      '* { box-sizing: border-box; }\n' +
+      'body { font-family: -apple-system, Inter, sans-serif; background: #08080a; color: #fff; padding: 24px; margin: 0; }\n' +
+      'h1 { color: #fff; margin: 0 0 6px; font-size: 24px; letter-spacing: -0.02em; }\n' +
+      '.meta { color: #71717a; font-size: 13px; margin-bottom: 28px; }\n' +
+      '.row { background: #0f0f12; border: 1px solid #1f1f24; border-radius: 12px; padding: 16px; margin-bottom: 10px; }\n' +
+      '.name { font-size: 15px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }\n' +
+      '.dot { width: 6px; height: 6px; border-radius: 50%; }\n' +
+      '.dot.male { background: #4a9eff; }\n' +
+      '.dot.female { background: #ff6fb5; }\n' +
+      '.pass { font-family: monospace; color: #fcd116; font-size: 13px; margin-bottom: 4px; }\n' +
+      '.time { color: #52525b; font-size: 11px; }\n' +
+      '@media (min-width: 600px) { body { padding: 48px; } }\n' +
+      '</style></head><body>\n' +
+      '<h1>🇨🇴 ColGen Export</h1>\n' +
+      '<p class="meta">' + new Date().toLocaleString() + ' · ' + data.length + ' identities</p>\n';
+
+    for (var k = 0; k < data.length; k++) {
+      var item = data[k];
+      content += '<div class="row">\n' +
+        '<div class="name"><span class="dot ' + (item.gender || 'male') + '"></span>' + (k + 1) + '. ' + item.name + '</div>\n' +
+        '<div class="pass">' + item.pass + '</div>\n' +
+        '<div class="time">' + (item.time || '') + '</div>\n' +
+        '</div>\n';
+    }
+    content += '</body></html>';
+  }
+
+  var blob = new Blob([content], { type: mime });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'colgen-' + ts + '.' + fmt;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+
+  closeDownloadModal();
+  toast('Exported as ' + fmt.toUpperCase(), "success");
+}
+
+// ==================== Toast ====================
+function toast(msg, type) {
+  type = type || "info";
+  var t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast ' + type;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(function() { t.classList.remove('show'); }, 2000);
+}
+
+// ==================== Bind Events ====================
+document.addEventListener('DOMContentLoaded', function() {
+  // Generate
+  document.getElementById('generateBtn').addEventListener('click', generate);
+
+  // Save
+  document.getElementById('saveBtn').addEventListener('click', saveData);
+
+  // Slider
+  document.getElementById('passLength').addEventListener('input', function() {
+    document.getElementById('lenVal').textContent = this.value;
+  });
+
+  // Live copy
+  document.getElementById('copyNameBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    copyLiveText('nameOutput', 'copyNameBtn');
+  });
+
+  document.getElementById('copyPassBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    copyLiveText('passOutput', 'copyPassBtn');
+  });
+
+  // Search
+  document.getElementById('searchBox').addEventListener('input', renderHistory);
+
+  // Export
+  document.getElementById('exportBtn').addEventListener('click', openDownloadModal);
+
+  // Clear
+  document.getElementById('clearBtn').addEventListener('click', askClearAll);
+
+  // Format cards
+  var fmts = document.querySelectorAll('.fmt');
+  for (var i = 0; i < fmts.length; i++) {
+    fmts[i].addEventListener('click', function() {
+      downloadFile(this.getAttribute('data-format'));
+    });
+  }
+
+  // Modal close
+  document.getElementById('closeDownloadBtn').addEventListener('click', closeDownloadModal);
+
+  document.getElementById('downloadModal').addEventListener('click', function(e) {
+    if (e.target.id === 'downloadModal') closeDownloadModal();
+  });
+
+  // Confirm modal
+  document.getElementById('confirmCancelBtn').addEventListener('click', closeConfirm);
+
+  document.getElementById('confirmOkBtn').addEventListener('click', function() {
+    if (pendingDeleteId) {
+      doDeleteOne();
+    } else {
+      doClearAll();
+    }
+  });
+
+  document.getElementById('confirmModal').addEventListener('click', function(e) {
+    if (e.target.id === 'confirmModal') closeConfirm();
+  });
+
+  // ==================== Referral Link Buttons ====================
+  document.getElementById('copyLinkBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    var btn = this;
+    performCopy(REF_LINK, btn);
+  });
+
+  document.getElementById('openLinkBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    try {
+      window.open(REF_LINK, '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      window.location.href = REF_LINK;
+    }
+    toast("Opening link...", "success");
+  });
+
+  // Init
+  renderHistory();
+});
+</script>
+
+</body>
+</html>
